@@ -1,4 +1,4 @@
-package com.mjc.school.controller;
+package com.mjc.school.main;
 
 import java.io.*;
 import java.time.Duration;

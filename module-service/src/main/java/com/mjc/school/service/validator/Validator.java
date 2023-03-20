@@ -45,7 +45,7 @@ public class Validator {
 						throw new InvalidContentException("Title must be between 5 and 30 characters long!");
 				}
 				if (newsModel.getContent().length() < 5 || newsModel.getContent().length() > 255) {
-						throw new InvalidContentException("Title must be between 5 and 255 characters long!");
+						throw new InvalidContentException("Content must be between 5 and 255 characters long!");
 				}
 				if (authorModelList.stream().map(AuthorModel::getId).noneMatch(i -> i.equals(newsModel.getAuthorId()))) {
 						throw new NoSuchEntityException(NO_AUTHOR_ID);

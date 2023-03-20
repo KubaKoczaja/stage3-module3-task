@@ -11,6 +11,7 @@ import com.mjc.school.service.validator.ValidateNewsId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -36,6 +37,9 @@ public class NewsServiceImpl implements NewsService {
 		@Override
 		@ValidateNewsContent
 		public NewsModelDto create(NewsModelDto createRequest) {
+				createRequest.setCreateDate(LocalDateTime.now());
+				createRequest.setLastUpdateDate(LocalDateTime.now());
+				createRequest.setId((long) newsModelRepository.readAll().size());
 				NewsModel savedNews = newsMapper.newsDTOToNews(createRequest);
 				return newsMapper.newsToNewsDTO(newsModelRepository.create(savedNews));
 		}
@@ -44,6 +48,11 @@ public class NewsServiceImpl implements NewsService {
 		@ValidateNewsContent
 		public NewsModelDto update(NewsModelDto updateRequest) {
 				NewsModel updatedNews = newsMapper.newsDTOToNews(updateRequest);
+				NewsModel newsFromDatabase = newsModelRepository.readById(updatedNews.getId())
+								.orElseThrow(() -> new NoSuchEntityException("No such news!"));
+						updatedNews.setCreateDate(newsFromDatabase.getCreateDate());
+						updatedNews.setLastUpdateDate(LocalDateTime.now());
+						updatedNews.setAuthorId(newsFromDatabase.getAuthorId());
 				return newsMapper.newsToNewsDTO(newsModelRepository.update(updatedNews));
 		}
 

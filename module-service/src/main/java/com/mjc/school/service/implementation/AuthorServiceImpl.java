@@ -11,6 +11,7 @@ import com.mjc.school.service.validator.ValidateAuthorsDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -35,6 +36,9 @@ public class AuthorServiceImpl implements AuthorService {
 		@ValidateAuthorsDetails
 		public AuthorModelDto create(AuthorModelDto createRequest) {
 				AuthorModel savedAuthor = authorMapper.authorDtoToAuthor(createRequest);
+				createRequest.setCreateDate(LocalDateTime.now());
+				createRequest.setLastUpdateDate(LocalDateTime.now());
+				createRequest.setId((long) authorModelRepository.readAll().size());
 				return authorMapper.authorToAuthorDto(authorModelRepository.create(savedAuthor));
 		}
 
@@ -42,6 +46,9 @@ public class AuthorServiceImpl implements AuthorService {
 		@ValidateAuthorsDetails
 		public AuthorModelDto update(AuthorModelDto updateRequest) {
 				AuthorModel updatedAuthor = authorMapper.authorDtoToAuthor(updateRequest);
+				AuthorModel authorFromDatabase = authorModelRepository.readById(updatedAuthor.getId()).orElseThrow();
+				updatedAuthor.setCreateDate(authorFromDatabase.getCreateDate());
+				updatedAuthor.setLastUpdateDate(LocalDateTime.now());
 				return authorMapper.authorToAuthorDto(authorModelRepository.update(updatedAuthor));
 		}
 
