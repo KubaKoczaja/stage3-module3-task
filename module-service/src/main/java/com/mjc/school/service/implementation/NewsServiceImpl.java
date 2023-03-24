@@ -1,5 +1,6 @@
 package com.mjc.school.service.implementation;
 
+import com.mjc.school.repository.AuthorModel;
 import com.mjc.school.repository.BaseRepository;
 import com.mjc.school.repository.NewsModel;
 import com.mjc.school.service.NewsService;
@@ -18,6 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class NewsServiceImpl implements NewsService {
 		private final BaseRepository<NewsModel, Long> newsModelRepository;
+		private final BaseRepository<AuthorModel, Long> authorModelRepository;
 		private final NewsMapper newsMapper;
 
 		@Override
@@ -39,8 +41,8 @@ public class NewsServiceImpl implements NewsService {
 		public NewsModelDto create(NewsModelDto createRequest) {
 				createRequest.setCreateDate(LocalDateTime.now());
 				createRequest.setLastUpdateDate(LocalDateTime.now());
-				createRequest.setId((long) newsModelRepository.readAll().size());
 				NewsModel savedNews = newsMapper.newsDTOToNews(createRequest);
+    		savedNews.setAuthorModel(authorModelRepository.readById(createRequest.getAuthorId()).orElseThrow());
 				return newsMapper.newsToNewsDTO(newsModelRepository.create(savedNews));
 		}
 
@@ -52,7 +54,6 @@ public class NewsServiceImpl implements NewsService {
 								.orElseThrow(() -> new NoSuchEntityException("No such news!"));
 						updatedNews.setCreateDate(newsFromDatabase.getCreateDate());
 						updatedNews.setLastUpdateDate(LocalDateTime.now());
-						updatedNews.setAuthorId(newsFromDatabase.getAuthorId());
 				return newsMapper.newsToNewsDTO(newsModelRepository.update(updatedNews));
 		}
 

@@ -1,7 +1,7 @@
 package com.mjc.school.service.validator;
 
 import com.mjc.school.repository.AuthorModel;
-import com.mjc.school.repository.DataSource;
+import com.mjc.school.repository.BaseRepository;
 import com.mjc.school.repository.NewsModel;
 import com.mjc.school.service.dto.AuthorModelDto;
 import com.mjc.school.service.dto.NewsModelDto;
@@ -19,12 +19,13 @@ import java.util.List;
 @Aspect
 @RequiredArgsConstructor
 public class Validator {
-		private final DataSource dataSource;
+		private final BaseRepository<NewsModel, Long> newsModelRepository;
+		private final BaseRepository<AuthorModel, Long> authorModelRepository;
 		private static final String NO_AUTHOR_ID = "No such author id!";
 		@Before("@annotation(ValidateNewsId)")
 		public void validateIfNewsIdExists(JoinPoint joinPoint) throws NoSuchEntityException{
 				Long id = (Long) joinPoint.getArgs()[0];
-				List<NewsModel> newsModelList = dataSource.parseNewsFromFile();
+				List<NewsModel> newsModelList = newsModelRepository.readAll();
 				if (newsModelList.stream().map(NewsModel::getId).noneMatch(i -> i.equals(id))) {
 						throw new NoSuchEntityException("No such id!");
 				}
@@ -32,7 +33,7 @@ public class Validator {
 		@Before("@annotation(ValidateAuthorId)")
 		public void validateIfAuthorsIdExists(JoinPoint joinPoint) throws NoSuchEntityException {
 				Long id = (Long) joinPoint.getArgs()[0];
-				List<AuthorModel> authorModelList = dataSource.parseAuthorFromFile();
+				List<AuthorModel> authorModelList = authorModelRepository.readAll();
 				if (authorModelList.stream().map(AuthorModel::getId).noneMatch(i -> i.equals(id))) {
 						throw new NoSuchEntityException(NO_AUTHOR_ID);
 				}
@@ -40,7 +41,7 @@ public class Validator {
 		@Before("@annotation(ValidateNewsContent)")
 		public void validateNewsContent(JoinPoint joinPoint) {
 				NewsModelDto newsModel = (NewsModelDto) joinPoint.getArgs()[0];
-				List<AuthorModel> authorModelList = dataSource.parseAuthorFromFile();
+				List<AuthorModel> authorModelList = authorModelRepository.readAll();
 				if (newsModel.getTitle().length() < 5 || newsModel.getTitle().length() > 30) {
 						throw new InvalidContentException("Title must be between 5 and 30 characters long!");
 				}

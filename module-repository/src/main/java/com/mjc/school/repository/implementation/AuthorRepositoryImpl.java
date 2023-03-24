@@ -2,61 +2,59 @@ package com.mjc.school.repository.implementation;
 
 import com.mjc.school.repository.AuthorModel;
 import com.mjc.school.repository.BaseRepository;
-import com.mjc.school.repository.DataSource;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
 public class AuthorRepositoryImpl implements BaseRepository<AuthorModel, Long> {
-		private final DataSource dataSource;
+		private final Session session;
 		@Override
 		public List<AuthorModel> readAll() {
-				return dataSource.parseAuthorFromFile();
+    return session.createQuery("select a from AuthorModel a").getResultList();
 		}
-
 		@Override
 		public Optional<AuthorModel> readById(Long id) {
-				List<AuthorModel> authorModelList = dataSource.parseAuthorFromFile();
-				return Optional.of(authorModelList.get(Math.toIntExact(id)));
+				return session.createQuery("select a from AuthorModel a where a.id = ?1")
+								.setParameter(1, id)
+								.uniqueResultOptional();
 		}
-
 		@Override
 		public AuthorModel create(AuthorModel entity) {
-				dataSource.appendAuthorToFile(entity);
+				Transaction transaction = session.getTransaction();
+				transaction.begin();
+				Long id = (Long) session.save(entity);
+				entity.setId(id);
+				transaction.commit();
 				return entity;
 		}
-
 		@Override
 		public AuthorModel update(AuthorModel entity) {
-				List<AuthorModel> authorsModelList = dataSource.parseAuthorFromFile();
-				AuthorModel authorModelToUpdate = authorsModelList.get(Math.toIntExact(entity.getId()));
-				authorModelToUpdate.setName(entity.getName());
-				authorModelToUpdate.setCreateDate(entity.getCreateDate());
-				authorModelToUpdate.setLastUpdateDate(LocalDateTime.now());
-				dataSource.saveAllAuthorsToFile(authorsModelList);
+				session.update(entity);
 				return entity;
 		}
-
 		@Override
 		public boolean deleteById(Long id) {
-				List<AuthorModel> authorModelList = new ArrayList<>(dataSource.parseAuthorFromFile());
-				authorModelList.remove(Math.toIntExact(id));
-				dataSource.saveAllAuthorsToFile(authorModelList);
+				Transaction transaction = session.getTransaction();
+				transaction.begin();
+				try{
+				session.createQuery("delete from AuthorModel where id = ?1")
+        				.setParameter( 1, id )
+								.executeUpdate();
+				} catch (RuntimeException e) {
+						transaction.rollback();
+						return Boolean.FALSE;
+				}
+				transaction.commit();
 				return Boolean.TRUE;
 		}
-
 		@Override
 		public boolean existById(Long id) {
-				return dataSource.parseAuthorFromFile()
-								.stream()
-								.map(AuthorModel::getId)
-								.toList()
-								.contains(id);
+				return  readById(id).isPresent();
 		}
 }

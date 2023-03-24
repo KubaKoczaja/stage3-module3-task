@@ -35,10 +35,9 @@ public class AuthorServiceImpl implements AuthorService {
 		@Override
 		@ValidateAuthorsDetails
 		public AuthorModelDto create(AuthorModelDto createRequest) {
-				AuthorModel savedAuthor = authorMapper.authorDtoToAuthor(createRequest);
 				createRequest.setCreateDate(LocalDateTime.now());
 				createRequest.setLastUpdateDate(LocalDateTime.now());
-				createRequest.setId((long) authorModelRepository.readAll().size());
+				AuthorModel savedAuthor = authorMapper.authorDtoToAuthor(createRequest);
 				return authorMapper.authorToAuthorDto(authorModelRepository.create(savedAuthor));
 		}
 

@@ -3,15 +3,23 @@ package com.mjc.school.main;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mjc.school.main.command.Command;
 import com.mjc.school.main.command.CommandExecutor;
+import com.mjc.school.repository.AuthorModel;
+import com.mjc.school.repository.NewsModel;
+import com.mjc.school.service.dto.NewsModelDto;
+import com.mjc.school.service.mapper.NewsMapper;
+import com.mjc.school.service.mapper.NewsMapperImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.lang.reflect.InvocationTargetException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 public class Main {
 		public static void main(String[] args) {
-				DataGenerator.generateData();
 				ApplicationContext context = new AnnotationConfigApplicationContext("com.mjc.school");
 				View view = context.getBean("view", View.class);
 				int menuOption;
@@ -35,16 +43,16 @@ public class Main {
 						try {
 								Object result = commandExecutor.execute(command);
 								if (result instanceof List<?>) {
-										((List<?>) result).forEach(System.out::println);
+										((List<?>) result).forEach(r ->log.info(result.toString()));
 								} else {
-										System.out.println(result);
+										log.info(result.toString());
 								}
 						} catch (RuntimeException e) {
-								System.out.println(e.getMessage());
+								log.info(e.getMessage());
 								menuOption = -1;
 						}
 						 catch (JsonProcessingException | InvocationTargetException | IllegalAccessException e) {
-								 System.out.println(e.getCause().getMessage());
+								 log.info(e.getCause().getMessage());
 								 menuOption = -1;
 						 }
 				} while(menuOption != 0);
