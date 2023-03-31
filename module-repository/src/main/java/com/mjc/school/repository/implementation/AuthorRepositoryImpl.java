@@ -1,22 +1,32 @@
 package com.mjc.school.repository.implementation;
 
 import com.mjc.school.repository.AuthorModel;
-import com.mjc.school.repository.BaseRepository;
+import com.mjc.school.repository.AuthorRepository;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
-public class AuthorRepositoryImpl implements BaseRepository<AuthorModel, Long> {
+public class AuthorRepositoryImpl implements AuthorRepository {
 		private final Session session;
 		@Override
 		public List<AuthorModel> readAll() {
-    return session.createQuery("select a from AuthorModel a").getResultList();
+				Transaction transaction = session.getTransaction();
+				transaction.begin();
+				List<AuthorModel> authorsList = new ArrayList<>();
+				try {
+						authorsList = session.createQuery("select a from AuthorModel a").getResultList();
+				} catch (Exception e) {
+						transaction.rollback();
+				}
+				transaction.commit();
+				return authorsList;
 		}
 		@Override
 		public Optional<AuthorModel> readById(Long id) {
@@ -28,8 +38,11 @@ public class AuthorRepositoryImpl implements BaseRepository<AuthorModel, Long> {
 		public AuthorModel create(AuthorModel entity) {
 				Transaction transaction = session.getTransaction();
 				transaction.begin();
-				Long id = (Long) session.save(entity);
-				entity.setId(id);
+				try {
+						session.save(entity);
+				} catch (RuntimeException e) {
+						transaction.rollback();
+				}
 				transaction.commit();
 				return entity;
 		}
@@ -56,5 +69,11 @@ public class AuthorRepositoryImpl implements BaseRepository<AuthorModel, Long> {
 		@Override
 		public boolean existById(Long id) {
 				return  readById(id).isPresent();
+		}
+		@Override
+		public AuthorModel readByNewsId(Long newsId) {
+    return (AuthorModel) session.createQuery("Select a FROM AuthorModel a JOIN a.newsModelList n WHERE n.id = ?1")
+            .setParameter(1, newsId)
+            .uniqueResult();
 		}
 }

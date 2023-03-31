@@ -1,17 +1,8 @@
 package com.mjc.school.service;
 
 import com.mjc.school.service.dto.AuthorModelDto;
+import com.mjc.school.service.dto.AuthorRequestDto;
 
-import java.util.List;
-
-public interface AuthorService extends BaseService<AuthorModelDto, AuthorModelDto, Long> {
-		List<AuthorModelDto> readAll();
-
-		AuthorModelDto readById(Long id);
-
-		AuthorModelDto create(AuthorModelDto createRequest);
-
-		AuthorModelDto update(AuthorModelDto updateRequest);
-
-		boolean deleteById(Long id);
+public interface AuthorService extends BaseService<AuthorRequestDto, AuthorModelDto, Long>{
+		AuthorModelDto readByNewsId(Long newsId);
 }

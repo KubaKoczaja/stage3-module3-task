@@ -42,7 +42,9 @@ subprojects {
         // https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api
         implementation group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.0'
 
-        implementation 'org.slf4j:slf4j-simple:2.0.7'
+//        implementation 'org.slf4j:slf4j-simple:2.0.7'
+// https://mvnrepository.com/artifact/org.slf4j/slf4j-reload4j
+        testImplementation 'org.slf4j:slf4j-reload4j:2.0.7'
 
 
 

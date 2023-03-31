@@ -1,10 +1,9 @@
 package com.mjc.school.service.implementation;
 
-import com.mjc.school.repository.AuthorModel;
-import com.mjc.school.repository.BaseRepository;
-import com.mjc.school.repository.NewsModel;
+import com.mjc.school.repository.*;
 import com.mjc.school.service.NewsService;
 import com.mjc.school.service.dto.NewsModelDto;
+import com.mjc.school.service.dto.NewsRequestDto;
 import com.mjc.school.service.exception.NoSuchEntityException;
 import com.mjc.school.service.mapper.NewsMapper;
 import com.mjc.school.service.validator.ValidateNewsContent;
@@ -13,13 +12,18 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class NewsServiceImpl implements NewsService {
-		private final BaseRepository<NewsModel, Long> newsModelRepository;
-		private final BaseRepository<AuthorModel, Long> authorModelRepository;
+		private final NewsRepository newsModelRepository;
+		private final AuthorRepository authorModelRepository;
+		private final TagRepository tagModelRepository;
 		private final NewsMapper newsMapper;
 
 		@Override
@@ -38,18 +42,25 @@ public class NewsServiceImpl implements NewsService {
 
 		@Override
 		@ValidateNewsContent
-		public NewsModelDto create(NewsModelDto createRequest) {
+		public NewsModelDto create(NewsRequestDto createRequest) {
 				createRequest.setCreateDate(LocalDateTime.now());
 				createRequest.setLastUpdateDate(LocalDateTime.now());
-				NewsModel savedNews = newsMapper.newsDTOToNews(createRequest);
+				NewsModel savedNews = newsMapper.newsRequestToNews(createRequest);
     		savedNews.setAuthorModel(authorModelRepository.readById(createRequest.getAuthorId()).orElseThrow());
+				if (!createRequest.getTagIds().isBlank()) {
+						Set<TagModel> collect =
+										Arrays.stream(createRequest.getTagIds().split(","))
+														.map(t -> tagModelRepository.readById(Long.valueOf(t)).orElseThrow())
+														.collect(Collectors.toSet());
+						savedNews.setTagModelSet(collect);
+				}
 				return newsMapper.newsToNewsDTO(newsModelRepository.create(savedNews));
 		}
 
 		@Override
 		@ValidateNewsContent
-		public NewsModelDto update(NewsModelDto updateRequest) {
-				NewsModel updatedNews = newsMapper.newsDTOToNews(updateRequest);
+		public NewsModelDto update(NewsRequestDto updateRequest) {
+				NewsModel updatedNews = newsMapper.newsRequestToNews(updateRequest);
 				NewsModel newsFromDatabase = newsModelRepository.readById(updatedNews.getId())
 								.orElseThrow(() -> new NoSuchEntityException("No such news!"));
 						updatedNews.setCreateDate(newsFromDatabase.getCreateDate());
@@ -61,5 +72,30 @@ public class NewsServiceImpl implements NewsService {
 		@ValidateNewsId
 		public boolean deleteById(Long id) {
 				return newsModelRepository.deleteById(id);
+		}
+
+		@Override
+		public Set<NewsModelDto> readNewsByVariousParameters(NewsRequestDto newsRequestDto) {
+				Set<NewsModel> searchResult = new HashSet<>();
+				if (!newsRequestDto.getTagNames().isBlank()) {
+						Arrays.stream(newsRequestDto.getTagNames().split(","))
+										.map(newsModelRepository::readByTagName)
+										.forEach(searchResult::addAll);
+				}
+				if (!newsRequestDto.getTagIds().isBlank()) {
+						Arrays.stream(newsRequestDto.getTagIds().split(","))
+										.map(s -> newsModelRepository.readByTagId(Long.valueOf(s)))
+										.forEach(searchResult::addAll);
+				}
+    if (!newsRequestDto.getAuthorName().isBlank()) {
+				searchResult.addAll(newsModelRepository.readByAuthorName(newsRequestDto.getAuthorName()));
+		}
+		if (!newsRequestDto.getTitle().isBlank()) {
+				searchResult.addAll(newsModelRepository.readByTitle(newsRequestDto.getTitle()));
+		}
+		if (!newsRequestDto.getContent().isBlank()) {
+				searchResult.addAll(newsModelRepository.readByContent(newsRequestDto.getContent()));
+		}
+				return searchResult.stream().map(newsMapper::newsToNewsDTO).collect(Collectors.toSet());
 		}
 }

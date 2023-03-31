@@ -1,22 +1,21 @@
 package com.mjc.school.repository;
 
 import lombok.*;
-
 import org.hibernate.annotations.Cascade;
 import org.springframework.lang.NonNull;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Entity
-@Table(name = "AUTHOR")
-@ToString(exclude = "newsModelList")
+@Table(name = "TAG")
+@ToString(exclude = "newsModelSet")
 @EqualsAndHashCode(exclude = "id")
-public class AuthorModel implements BaseEntity<Long>{
+public class TagModel implements BaseEntity<Long>{
 		@Id
 		@GeneratedValue(strategy = GenerationType.AUTO)
 		@Column(name = "ID")
@@ -24,13 +23,7 @@ public class AuthorModel implements BaseEntity<Long>{
 		@Column(name = "NAME")
 		@NonNull
 		private String name;
-		@NonNull
-		@Column(name = "CREATE_DATE")
-		private LocalDateTime createDate;
-		@NonNull
-		@Column(name = "LAST_UPDATE_DATE")
-		private LocalDateTime lastUpdateDate;
-		@OneToMany(mappedBy = "authorModel", fetch = FetchType.EAGER)
+		@ManyToMany(mappedBy = "tagModelSet")
 		@Cascade({org.hibernate.annotations.CascadeType.SAVE_UPDATE})
-		private List<NewsModel> newsModelList;
+		private Set<NewsModel> newsModelSet = new HashSet<>();
 }

@@ -3,18 +3,11 @@ package com.mjc.school.main;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mjc.school.main.command.Command;
 import com.mjc.school.main.command.CommandExecutor;
-import com.mjc.school.repository.AuthorModel;
-import com.mjc.school.repository.NewsModel;
-import com.mjc.school.service.dto.NewsModelDto;
-import com.mjc.school.service.mapper.NewsMapper;
-import com.mjc.school.service.mapper.NewsMapperImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.lang.reflect.InvocationTargetException;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -37,13 +30,21 @@ public class Main {
 								case 8 -> view.updateAuthorView();
 								case 9 -> view.deleteNewsByIdView();
 								case 10 -> view.deleteAuthorByIdView();
+								case 11 -> view.allTagsView();
+								case 12 -> view.tagByIdView();
+								case 13 -> view.createTagView();
+								case 14 -> view.updateTagView();
+								case 15 -> view.deleteTagView();
+								case 16 -> view.readAuthorByNewsIdView();
+								case 17 -> view.readTagsByNewsIdView();
+								case 18 -> view.readNewsByVariousParameters();
 								case 0 -> view.exitView();
 								default -> view.invalidOption();
 						};
 						try {
 								Object result = commandExecutor.execute(command);
 								if (result instanceof List<?>) {
-										((List<?>) result).forEach(r ->log.info(result.toString()));
+										((List<?>) result).forEach(r ->log.info(r.toString()));
 								} else {
 										log.info(result.toString());
 								}
