@@ -60,12 +60,20 @@ public class NewsServiceImpl implements NewsService {
 		@Override
 		@ValidateNewsContent
 		public NewsModelDto update(NewsRequestDto updateRequest) {
-				NewsModel updatedNews = newsMapper.newsRequestToNews(updateRequest);
-				NewsModel newsFromDatabase = newsModelRepository.readById(updatedNews.getId())
+				NewsModel newsFromDatabase = newsModelRepository.readById(updateRequest.getId())
 								.orElseThrow(() -> new NoSuchEntityException("No such news!"));
-						updatedNews.setCreateDate(newsFromDatabase.getCreateDate());
-						updatedNews.setLastUpdateDate(LocalDateTime.now());
-				return newsMapper.newsToNewsDTO(newsModelRepository.update(updatedNews));
+    		newsFromDatabase.setTitle(updateRequest.getTitle());
+				newsFromDatabase.setContent(updateRequest.getContent());
+				newsFromDatabase.setLastUpdateDate(LocalDateTime.now());
+				if (!updateRequest.getTagIds().isBlank()) {
+						Set<TagModel> collect =
+										Arrays.stream(updateRequest.getTagIds().split(","))
+														.map(t -> tagModelRepository.readById(Long.valueOf(t)).orElseThrow())
+														.collect(Collectors.toSet());
+						newsFromDatabase.setTagModelSet(collect);
+				}
+				newsFromDatabase.setAuthorModel(authorModelRepository.readById(updateRequest.getAuthorId()).orElseThrow());
+				return newsMapper.newsToNewsDTO(newsModelRepository.update(newsFromDatabase));
 		}
 
 		@Override

@@ -3,6 +3,7 @@ package com.mjc.school.service.implementation;
 import com.mjc.school.repository.AuthorModel;
 import com.mjc.school.repository.implementation.AuthorRepositoryImpl;
 import com.mjc.school.service.dto.AuthorModelDto;
+import com.mjc.school.service.dto.AuthorRequestDto;
 import com.mjc.school.service.mapper.AuthorMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -49,19 +50,20 @@ class AuthorServiceImplTest {
 
 		@Test
 		void shouldReturnAddedObjectIfValuesAreCorrect() {
-				AuthorModelDto authorModelToCreate = new AuthorModelDto(1L, "test", LocalDateTime.now(), LocalDateTime.now());
-				when(authorMapper.authorDtoToAuthor(any(AuthorModelDto.class))).thenReturn(new AuthorModel());
-				when(authorRepository.create(any(AuthorModel.class))).thenReturn(new AuthorModel());
+				AuthorRequestDto authorModelToCreate = new AuthorRequestDto(1L, "test", LocalDateTime.now(), LocalDateTime.now(), 1L);
+				when(authorMapper.authorRequestToAuthor(any(AuthorRequestDto.class))).thenReturn(new AuthorModel());
+				lenient().when(authorRepository.create(any(AuthorModel.class))).thenReturn(new AuthorModel());
 				AuthorModelDto savedAuthorDto = new AuthorModelDto(1L, "test", LocalDateTime.now(), LocalDateTime.now());
-				when(authorMapper.authorToAuthorDto(any(AuthorModel.class))).thenReturn(savedAuthorDto);
+				lenient().when(authorMapper.authorToAuthorDto(any(AuthorModel.class))).thenReturn(savedAuthorDto);
 				assertEquals(savedAuthorDto, authorService.create(authorModelToCreate));
 		}
 
 		@Test
 		void shouldUpdateNewsWithGivenIdWhenValuesOfTitleAndContentAreCorrect() {
-				AuthorModelDto authorModelToUpdate = new AuthorModelDto(1L, "test", LocalDateTime.now(), LocalDateTime.now());
+				AuthorRequestDto authorModelToUpdate = new AuthorRequestDto(1L, "test", LocalDateTime.now(), LocalDateTime.now(), 1L);
 				AuthorModelDto updatedAuthorDto = new AuthorModelDto(1L, "test", LocalDateTime.now(), LocalDateTime.now());
-				when(authorMapper.authorDtoToAuthor(any(AuthorModelDto.class))).thenReturn(new AuthorModel());
+				when(authorRepository.readById(anyLong())).thenReturn(Optional.of(new AuthorModel()));
+				lenient().when(authorMapper.authorRequestToAuthor(any(AuthorRequestDto.class))).thenReturn(new AuthorModel());
 				when(authorRepository.update(any(AuthorModel.class))).thenReturn(new AuthorModel());
 				lenient().when(authorMapper.authorToAuthorDto(any(AuthorModel.class))).thenReturn(updatedAuthorDto);
 				assertEquals(updatedAuthorDto, authorService.update(authorModelToUpdate));

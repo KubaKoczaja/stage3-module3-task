@@ -16,6 +16,7 @@ import java.util.Scanner;
 public class View {
 		public static final String OBJ_TITLE = "title";
 		public static final String OBJ_CONTENT = "content";
+		public static final String OBJ_TAG_IDS = "tagIds";
 		private final Scanner scanner = new Scanner(System.in);
 		private final ObjectMapper objectMapper = new ObjectMapper();
 		public int mainMenu() {
@@ -73,7 +74,7 @@ public class View {
 				scanner.nextLine();
 				log.info("Please enter tag Ids separated by comas:");
 				String tagIds = scanner.nextLine();
-				Map<String, String> body = Map.of(OBJ_TITLE,title, OBJ_CONTENT, content, "authorId",String.valueOf(authorId), "tagIds", tagIds);
+				Map<String, String> body = Map.of(OBJ_TITLE,title, OBJ_CONTENT, content, "authorId",String.valueOf(authorId), OBJ_TAG_IDS, tagIds);
 				try {
 						command = new Command(5, null, objectMapper.writeValueAsString(body));
 				} catch (JsonProcessingException e) {
@@ -104,7 +105,12 @@ public class View {
 				String title = scanner.nextLine();
 				log.info("Please enter new content:");
 				String content = scanner.nextLine();
-				Map<String, String> body = Map.of("id", String.valueOf(id), OBJ_TITLE,title, OBJ_CONTENT, content);
+				log.info("Please enter Author Id:");
+				Long authorId = scanner.nextLong();
+				scanner.nextLine();
+				log.info("Please enter tag Ids separated by comas:");
+				String tagIds = scanner.nextLine();
+				Map<String, String> body = Map.of("id", String.valueOf(id), OBJ_TITLE,title, OBJ_CONTENT, content,"authorId",String.valueOf(authorId), OBJ_TAG_IDS, tagIds);
 				try {
 						command = new Command(7, null, objectMapper.writeValueAsString(body));
 				} catch (JsonProcessingException e) {
@@ -209,7 +215,7 @@ public class View {
 				log.info("Enter content:");
 				String content = scanner.nextLine();
 				Command command = null;
-				Map<String, String> body = Map.of(OBJ_TITLE, title, OBJ_CONTENT,content, "tagIds", tagIds, "tagNames", tagNames, "authorName", authorName);
+				Map<String, String> body = Map.of(OBJ_TITLE, title, OBJ_CONTENT,content, OBJ_TAG_IDS, tagIds, "tagNames", tagNames, "authorName", authorName);
 				try {
 						command = new Command(18, null, objectMapper.writeValueAsString(body));
 				} catch (JsonProcessingException e) {
