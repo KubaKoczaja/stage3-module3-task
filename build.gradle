@@ -35,17 +35,14 @@ subprojects {
         implementation 'org.mapstruct:mapstruct:1.5.3.Final'
         annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.3.Final'
         implementation group: 'com.h2database', name: 'h2', version: '2.1.214'
-
-        // https://mvnrepository.com/artifact/org.apache.commons/commons-dbcp2
+        
         implementation group: 'org.apache.commons', name: 'commons-dbcp2', version: '2.9.0'
 
-        // https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api
         implementation group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.0'
 
-//        implementation 'org.slf4j:slf4j-simple:2.0.7'
-// https://mvnrepository.com/artifact/org.slf4j/slf4j-reload4j
-        testImplementation 'org.slf4j:slf4j-reload4j:2.0.7'
+        implementation 'org.slf4j:slf4j-simple:2.0.7'
 
+        testImplementation 'org.assertj:assertj-core:3.24.2'
 
 
     }
