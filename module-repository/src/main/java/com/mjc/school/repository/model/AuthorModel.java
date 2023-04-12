@@ -17,16 +17,12 @@ import java.util.List;
 public class AuthorModel implements BaseEntity<Long>{
 		@Id
 		@GeneratedValue(strategy = GenerationType.AUTO)
-		@Column(name = "ID")
 		private Long id;
-		@Column(name = "NAME")
 		@NonNull
 		private String name;
 		@NonNull
-		@Column(name = "CREATE_DATE")
 		private LocalDateTime createDate;
 		@NonNull
-		@Column(name = "LAST_UPDATE_DATE")
 		private LocalDateTime lastUpdateDate;
 		@OneToMany(mappedBy = "authorModel")
 		private List<NewsModel> newsModelList = new ArrayList<>();

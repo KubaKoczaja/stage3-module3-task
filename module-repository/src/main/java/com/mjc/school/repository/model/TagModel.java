@@ -16,9 +16,7 @@ import java.util.Set;
 public class TagModel implements BaseEntity<Long>{
 		@Id
 		@GeneratedValue(strategy = GenerationType.AUTO)
-		@Column(name = "ID")
 		private Long id;
-		@Column(name = "NAME")
 		@NonNull
 		private String name;
 		@ManyToMany(mappedBy = "tagModelSet", cascade={CascadeType.MERGE})
