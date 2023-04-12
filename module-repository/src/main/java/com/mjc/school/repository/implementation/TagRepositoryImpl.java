@@ -20,7 +20,7 @@ public class TagRepositoryImpl implements TagRepository {
 		@Override
 		public List<TagModel> readAll() {
 				EntityManager entityManager = entityManagerFactory.createEntityManager();
-				List<TagModel> tagModelList = entityManager.createQuery("select t from TagModel t").getResultList();
+				List<TagModel> tagModelList = entityManager.createQuery("select t from TagModel t", TagModel.class).getResultList();
 						entityManager.close();
 				return tagModelList;
 		}
@@ -29,7 +29,7 @@ public class TagRepositoryImpl implements TagRepository {
 		public Optional<TagModel> readById(Long id) {
 				EntityManager entityManager = entityManagerFactory.createEntityManager();
 				Optional<TagModel> tag =
-								entityManager.createQuery("select t from TagModel t where t.id = ?1")
+								entityManager.createQuery("select t from TagModel t where t.id = ?1", TagModel.class)
 												.setParameter(1, id)
 												.getResultStream()
 												.findFirst();
@@ -95,7 +95,7 @@ public class TagRepositoryImpl implements TagRepository {
 		public List<TagModel> readByNewsId(Long newsId) {
 				EntityManager entityManager = entityManagerFactory.createEntityManager();
 				List<TagModel> readByNewsIdList = entityManager
-								.createQuery("select t from TagModel t join FETCH t.newsModelSet n where n.id =?1")
+								.createQuery("select t from TagModel t join FETCH t.newsModelSet n where n.id =?1", TagModel.class)
 								.setParameter(1, newsId)
 								.getResultList();
 				entityManager.close();

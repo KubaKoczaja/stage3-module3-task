@@ -5,10 +5,7 @@ import com.mjc.school.repository.model.AuthorModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
-import javax.persistence.PersistenceUnit;
+import javax.persistence.*;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,7 +17,8 @@ private final EntityManagerFactory entityManagerFactory;
 		@Override
 		public List<AuthorModel> readAll() {
 				EntityManager entityManager = entityManagerFactory.createEntityManager();
-				List<AuthorModel> authorsList = entityManager.createQuery("select a from AuthorModel a").getResultList();
+				TypedQuery<AuthorModel> query = entityManager.createQuery("select a from AuthorModel a", AuthorModel.class);
+				List<AuthorModel> authorsList = query.getResultList();
 				entityManager.close();
 				return authorsList;
 		}
@@ -28,7 +26,7 @@ private final EntityManagerFactory entityManagerFactory;
 public Optional<AuthorModel> readById(Long id) {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 		Optional<AuthorModel> authorById =
-						entityManager.createQuery("select a from AuthorModel a where a.id = ?1")
+						entityManager.createQuery("select a from AuthorModel a where a.id = ?1", AuthorModel.class)
 										.setParameter(1, id)
 										.getResultStream()
 										.findFirst();
@@ -88,8 +86,8 @@ public boolean deleteById(Long id) {
 		@Override
 		public AuthorModel readByNewsId(Long newsId) {
 				EntityManager entityManager = entityManagerFactory.createEntityManager();
-				AuthorModel authorModel = (AuthorModel) entityManager
-								.createQuery("Select a FROM AuthorModel a JOIN a.newsModelList n WHERE n.id = ?1")
+				AuthorModel authorModel = entityManager
+								.createQuery("Select a FROM AuthorModel a JOIN a.newsModelList n WHERE n.id = ?1", AuthorModel.class)
 								.setParameter(1, newsId)
 								.getSingleResult();
 				entityManager.close();

@@ -22,7 +22,7 @@ public class NewsRepositoryImpl implements NewsRepository {
 		@Override
 		public List<NewsModel> readAll() {
 				EntityManager entityManager = entityManagerFactory.createEntityManager();
-				List<NewsModel>	newsModelList = entityManager.createQuery("select n from NewsModel n").getResultList();
+				List<NewsModel>	newsModelList = entityManager.createQuery("select n from NewsModel n", NewsModel.class).getResultList();
 				entityManager.close();
 				return newsModelList;
 		}
@@ -31,7 +31,10 @@ public class NewsRepositoryImpl implements NewsRepository {
 		public Optional<NewsModel> readById(Long id) {
 				EntityManager entityManager = entityManagerFactory.createEntityManager();
 				Optional<NewsModel> newsReadById =
-								entityManager.createQuery("select n from NewsModel n where n.id = ?1").setParameter(1, id).getResultStream().findFirst();
+								entityManager.createQuery("select n from NewsModel n where n.id = ?1", NewsModel.class)
+												.setParameter(1, id)
+												.getResultStream()
+												.findFirst();
 				entityManager.close();
 				return newsReadById;
 		}
@@ -92,7 +95,7 @@ public class NewsRepositoryImpl implements NewsRepository {
 		@Override
 		public Set<NewsModel> readByTagName(String tagName) {
 				EntityManager entityManager = entityManagerFactory.createEntityManager();
-				Set<NewsModel> newsModelSet = (Set<NewsModel>) entityManager.createQuery("Select n from NewsModel n join n.tagModelSet t where t.name like ?1")
+				Set<NewsModel> newsModelSet = entityManager.createQuery("Select n from NewsModel n join n.tagModelSet t where t.name like ?1", NewsModel.class)
 								.setParameter(1, "%" + tagName + "%")
 								.getResultStream()
 								.collect(Collectors.toSet());
@@ -103,10 +106,13 @@ public class NewsRepositoryImpl implements NewsRepository {
 		@Override
 		public Set<NewsModel> readByTagId(Long tagId) {
 				EntityManager entityManager = entityManagerFactory.createEntityManager();
-				Set<NewsModel> newsModelSet = (Set<NewsModel>) entityManager.createQuery("Select n from NewsModel n join n.tagModelSet t where t.id = ?1")
-								.setParameter(1, tagId)
-								.getResultStream()
-								.collect(Collectors.toSet());
+    Set<NewsModel> newsModelSet =
+        entityManager
+            .createQuery(
+                "Select n from NewsModel n join n.tagModelSet t where t.id = ?1", NewsModel.class)
+            .setParameter(1, tagId)
+            .getResultStream()
+            .collect(Collectors.toSet());
 				entityManager.close();
 				return newsModelSet;
 		}
@@ -114,10 +120,13 @@ public class NewsRepositoryImpl implements NewsRepository {
 		@Override
 		public  Set<NewsModel> readByAuthorName(String authorName) {
 				EntityManager entityManager = entityManagerFactory.createEntityManager();
-				Set<NewsModel> newsModelSet = (Set<NewsModel>) entityManager.createQuery("Select n from NewsModel n join n.authorModel a where a.name = ?1")
-								.setParameter(1, "%" + authorName + "%")
-								.getResultStream()
-								.collect(Collectors.toSet());
+    Set<NewsModel> newsModelSet =
+        entityManager
+            .createQuery(
+                "Select n from NewsModel n join n.authorModel a where a.name = ?1", NewsModel.class)
+            .setParameter(1, "%" + authorName + "%")
+            .getResultStream()
+            .collect(Collectors.toSet());
 				entityManager.close();
 				return newsModelSet;
 		}
@@ -125,10 +134,12 @@ public class NewsRepositoryImpl implements NewsRepository {
 		@Override
 		public  Set<NewsModel> readByTitle(String title) {
 				EntityManager entityManager = entityManagerFactory.createEntityManager();
-				Set<NewsModel> newsModelSet = (Set<NewsModel>) entityManager.createQuery("Select n from NewsModel n where n.title like ?1")
-								.setParameter(1, "%" + title + "%")
-								.getResultStream()
-								.collect(Collectors.toSet());
+    Set<NewsModel> newsModelSet =
+        entityManager
+            .createQuery("Select n from NewsModel n where n.title like ?1", NewsModel.class)
+            .setParameter(1, "%" + title + "%")
+            .getResultStream()
+            .collect(Collectors.toSet());
 				entityManager.close();
 				return newsModelSet;
 		}
@@ -136,10 +147,12 @@ public class NewsRepositoryImpl implements NewsRepository {
 		@Override
 		public Set<NewsModel> readByContent(String content) {
 				EntityManager entityManager = entityManagerFactory.createEntityManager();
-				Set<NewsModel> newsModelSet = (Set<NewsModel>) entityManager.createQuery("Select n from NewsModel n where n.conten like ?1")
-								.setParameter(1, "%" + content + "%")
-								.getResultStream()
-								.collect(Collectors.toSet());
+    Set<NewsModel> newsModelSet =
+        entityManager
+            .createQuery("Select n from NewsModel n where n.content like ?1", NewsModel.class)
+            .setParameter(1, "%" + content + "%")
+            .getResultStream()
+            .collect(Collectors.toSet());
 				entityManager.close();
 				return newsModelSet;
 		}
