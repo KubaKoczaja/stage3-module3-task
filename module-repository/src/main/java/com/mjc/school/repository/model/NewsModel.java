@@ -12,7 +12,6 @@ import java.util.Set;
 @NoArgsConstructor
 @Data
 @Entity
-@Table(name = "NEWS")
 @ToString(exclude = {"tagModelSet", "authorModel"})
 @EqualsAndHashCode(exclude = {"id", "tagModelSet"})
 public class NewsModel implements BaseEntity<Long>{

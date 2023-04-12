@@ -12,7 +12,6 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 @Entity
-@Table(name = "AUTHOR")
 @ToString(exclude = "newsModelList")
 @EqualsAndHashCode(exclude = "id")
 public class AuthorModel implements BaseEntity<Long>{
