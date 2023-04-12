@@ -3,7 +3,6 @@ package com.mjc.school.repository.implementation;
 import com.mjc.school.repository.NewsRepository;
 import com.mjc.school.repository.model.NewsModel;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -23,8 +22,7 @@ public class NewsRepositoryImpl implements NewsRepository {
 		@Override
 		public List<NewsModel> readAll() {
 				EntityManager entityManager = entityManagerFactory.createEntityManager();
-				Session session = entityManager.unwrap(Session.class);
-				List<NewsModel>	newsModelList = session.createQuery("select n from NewsModel n").getResultList();
+				List<NewsModel>	newsModelList = entityManager.createQuery("select n from NewsModel n").getResultList();
 				entityManager.close();
 				return newsModelList;
 		}
@@ -32,9 +30,8 @@ public class NewsRepositoryImpl implements NewsRepository {
 		@Override
 		public Optional<NewsModel> readById(Long id) {
 				EntityManager entityManager = entityManagerFactory.createEntityManager();
-				Session session = entityManager.unwrap(Session.class);
 				Optional<NewsModel> newsReadById =
-								session.createQuery("select n from NewsModel n where n.id = ?1").setParameter(1, id).getResultStream().findFirst();
+								entityManager.createQuery("select n from NewsModel n where n.id = ?1").setParameter(1, id).getResultStream().findFirst();
 				entityManager.close();
 				return newsReadById;
 		}

@@ -3,7 +3,6 @@ package com.mjc.school.repository.implementation;
 import com.mjc.school.repository.TagRepository;
 import com.mjc.school.repository.model.TagModel;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -21,9 +20,7 @@ public class TagRepositoryImpl implements TagRepository {
 		@Override
 		public List<TagModel> readAll() {
 				EntityManager entityManager = entityManagerFactory.createEntityManager();
-				Session session = entityManager.unwrap(Session.class);
-				List<TagModel> tagModelList = session.createQuery("select t from TagModel t").getResultList();
-				session.close();
+				List<TagModel> tagModelList = entityManager.createQuery("select t from TagModel t").getResultList();
 						entityManager.close();
 				return tagModelList;
 		}
@@ -31,14 +28,11 @@ public class TagRepositoryImpl implements TagRepository {
 		@Override
 		public Optional<TagModel> readById(Long id) {
 				EntityManager entityManager = entityManagerFactory.createEntityManager();
-				Session session = entityManager.unwrap(Session.class);
-
 				Optional<TagModel> tag =
-								session.createQuery("select t from TagModel t where t.id = ?1")
+								entityManager.createQuery("select t from TagModel t where t.id = ?1")
 												.setParameter(1, id)
 												.getResultStream()
 												.findFirst();
-				session.close();
 				entityManager.close();
 				return tag;
 		}

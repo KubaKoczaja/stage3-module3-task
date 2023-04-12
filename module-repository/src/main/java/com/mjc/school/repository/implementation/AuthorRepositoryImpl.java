@@ -3,7 +3,6 @@ package com.mjc.school.repository.implementation;
 import com.mjc.school.repository.AuthorRepository;
 import com.mjc.school.repository.model.AuthorModel;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -21,22 +20,18 @@ private final EntityManagerFactory entityManagerFactory;
 		@Override
 		public List<AuthorModel> readAll() {
 				EntityManager entityManager = entityManagerFactory.createEntityManager();
-				Session session = entityManager.unwrap(Session.class);
-				List<AuthorModel> authorsList = session.createQuery("select a from AuthorModel a").getResultList();
-				session.close();
+				List<AuthorModel> authorsList = entityManager.createQuery("select a from AuthorModel a").getResultList();
 				entityManager.close();
 				return authorsList;
 		}
 @Override
 public Optional<AuthorModel> readById(Long id) {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
-		Session session = entityManager.unwrap(Session.class);
 		Optional<AuthorModel> authorById =
-						session.createQuery("select a from AuthorModel a where a.id = ?1")
+						entityManager.createQuery("select a from AuthorModel a where a.id = ?1")
 										.setParameter(1, id)
 										.getResultStream()
 										.findFirst();
-		session.close();
 		entityManager.close();
 		return authorById;
 }
