@@ -1,11 +1,17 @@
 package com.mjc.school.service.implementation;
 
 import com.mjc.school.repository.*;
+import com.mjc.school.repository.model.NewsModel;
+import com.mjc.school.repository.model.TagModel;
+import com.mjc.school.service.AuthorService;
 import com.mjc.school.service.NewsService;
+import com.mjc.school.service.TagService;
 import com.mjc.school.service.dto.NewsModelDto;
 import com.mjc.school.service.dto.NewsRequestDto;
 import com.mjc.school.service.exception.NoSuchEntityException;
+import com.mjc.school.service.mapper.AuthorMapper;
 import com.mjc.school.service.mapper.NewsMapper;
+import com.mjc.school.service.mapper.TagMapper;
 import com.mjc.school.service.validator.ValidateNewsContent;
 import com.mjc.school.service.validator.ValidateNewsId;
 import lombok.RequiredArgsConstructor;
@@ -22,8 +28,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class NewsServiceImpl implements NewsService {
 		private final NewsRepository newsModelRepository;
-		private final AuthorRepository authorModelRepository;
-		private final TagRepository tagModelRepository;
+		private final AuthorService authorService;
+		private final AuthorMapper authorMapper;
+		private final TagService tagService;
+		private final TagMapper tagMapper;
 		private final NewsMapper newsMapper;
 
 		@Override
@@ -46,11 +54,11 @@ public class NewsServiceImpl implements NewsService {
 				createRequest.setCreateDate(LocalDateTime.now());
 				createRequest.setLastUpdateDate(LocalDateTime.now());
 				NewsModel savedNews = newsMapper.newsRequestToNews(createRequest);
-    		savedNews.setAuthorModel(authorModelRepository.readById(createRequest.getAuthorId()).orElseThrow());
+    		savedNews.setAuthorModel(authorMapper.authorDtoToAuthor(authorService.readById(createRequest.getAuthorId())));
 				if (!createRequest.getTagIds().isBlank()) {
 						Set<TagModel> collect =
 										Arrays.stream(createRequest.getTagIds().split(","))
-														.map(t -> tagModelRepository.readById(Long.valueOf(t)).orElseThrow())
+														.map(t -> tagMapper.tagDTOToTag(tagService.readById(Long.valueOf(t))))
 														.collect(Collectors.toSet());
 						savedNews.setTagModelSet(collect);
 				}
@@ -68,11 +76,11 @@ public class NewsServiceImpl implements NewsService {
 				if (!updateRequest.getTagIds().isBlank()) {
 						Set<TagModel> collect =
 										Arrays.stream(updateRequest.getTagIds().split(","))
-														.map(t -> tagModelRepository.readById(Long.valueOf(t)).orElseThrow())
+														.map(t -> tagMapper.tagDTOToTag(tagService.readById(Long.valueOf(t))))
 														.collect(Collectors.toSet());
 						newsFromDatabase.setTagModelSet(collect);
 				}
-				newsFromDatabase.setAuthorModel(authorModelRepository.readById(updateRequest.getAuthorId()).orElseThrow());
+				newsFromDatabase.setAuthorModel(authorMapper.authorDtoToAuthor(authorService.readById(updateRequest.getAuthorId())));
 				return newsMapper.newsToNewsDTO(newsModelRepository.update(newsFromDatabase));
 		}
 

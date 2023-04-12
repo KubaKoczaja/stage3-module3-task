@@ -1,12 +1,15 @@
 package com.mjc.school.repository.implementation;
 
-import com.mjc.school.repository.NewsModel;
 import com.mjc.school.repository.NewsRepository;
+import com.mjc.school.repository.model.NewsModel;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
+import javax.persistence.PersistenceUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -15,58 +18,73 @@ import java.util.stream.Collectors;
 @Repository
 @RequiredArgsConstructor
 public class NewsRepositoryImpl implements NewsRepository {
-		private final Session session;
+		@PersistenceUnit
+		private final EntityManagerFactory entityManagerFactory;
 		@Override
 		public List<NewsModel> readAll() {
-				return session.createQuery("select n from NewsModel n").getResultList();
+				EntityManager entityManager = entityManagerFactory.createEntityManager();
+				Session session = entityManager.unwrap(Session.class);
+				List<NewsModel>	newsModelList = session.createQuery("select n from NewsModel n").getResultList();
+				entityManager.close();
+				return newsModelList;
 		}
 
 		@Override
 		public Optional<NewsModel> readById(Long id) {
-				return session.createQuery("select n from NewsModel n where n.id = ?1")
-								.setParameter(1, id)
-								.uniqueResultOptional();
+				EntityManager entityManager = entityManagerFactory.createEntityManager();
+				Session session = entityManager.unwrap(Session.class);
+				Optional<NewsModel> newsReadById =
+								session.createQuery("select n from NewsModel n where n.id = ?1").setParameter(1, id).getResultStream().findFirst();
+				entityManager.close();
+				return newsReadById;
 		}
 
 		@Override
 		public NewsModel create(NewsModel entity) {
-				Transaction transaction = session.getTransaction();
+				EntityManager entityManager = entityManagerFactory.createEntityManager();
+				EntityTransaction transaction = entityManager.getTransaction();
 				transaction.begin();
 				try {
-      			session.save(entity);
+						entityManager.persist(entity);
 						transaction.commit();
-				} catch (Exception e) {
+				} catch (RuntimeException e) {
+						e.printStackTrace();
 						transaction.rollback();
 				}
+				entityManager.close();
 				return entity;
 		}
 
 		@Override
 		public NewsModel update(NewsModel entity) {
-				Transaction transaction = session.getTransaction();
+				EntityManager entityManager = entityManagerFactory.createEntityManager();
+				EntityTransaction transaction = entityManager.getTransaction();
 				transaction.begin();
 				try {
-						session.update(entity);
+						entityManager.merge(entity);
 						transaction.commit();
-				} catch (Exception e) {
+				} catch (RuntimeException e) {
 						transaction.rollback();
 				}
+				entityManager.close();
 				return entity;
 		}
 
 		@Override
 		public boolean deleteById(Long id) {
-				Transaction transaction = session.getTransaction();
+				EntityManager entityManager = entityManagerFactory.createEntityManager();
+				EntityTransaction transaction = entityManager.getTransaction();
 				transaction.begin();
-				try {
-				session.createQuery("delete from NewsModel where id = ?1")
-								.setParameter( 1, id )
-								.executeUpdate();
+				try{
+						entityManager.createQuery("delete from NewsModel where id = ?1")
+										.setParameter( 1, id )
+										.executeUpdate();
+						transaction.commit();
 				} catch (RuntimeException e) {
 						transaction.rollback();
 						return Boolean.FALSE;
 				}
-				transaction.commit();
+				entityManager.close();
 				return Boolean.TRUE;
 		}
 		@Override
@@ -76,41 +94,56 @@ public class NewsRepositoryImpl implements NewsRepository {
 
 		@Override
 		public Set<NewsModel> readByTagName(String tagName) {
-				return (Set<NewsModel>) session.createQuery("Select n from NewsModel n join n.tagModelSet t where t.name like ?1")
+				EntityManager entityManager = entityManagerFactory.createEntityManager();
+				Set<NewsModel> newsModelSet = (Set<NewsModel>) entityManager.createQuery("Select n from NewsModel n join n.tagModelSet t where t.name like ?1")
 								.setParameter(1, "%" + tagName + "%")
 								.getResultStream()
 								.collect(Collectors.toSet());
+				entityManager.close();
+				return newsModelSet;
 		}
 
 		@Override
 		public Set<NewsModel> readByTagId(Long tagId) {
-				return (Set<NewsModel>) session.createQuery("Select n from NewsModel n join n.tagModelSet t where t.id = ?1")
+				EntityManager entityManager = entityManagerFactory.createEntityManager();
+				Set<NewsModel> newsModelSet = (Set<NewsModel>) entityManager.createQuery("Select n from NewsModel n join n.tagModelSet t where t.id = ?1")
 								.setParameter(1, tagId)
 								.getResultStream()
 								.collect(Collectors.toSet());
+				entityManager.close();
+				return newsModelSet;
 		}
 
 		@Override
 		public  Set<NewsModel> readByAuthorName(String authorName) {
-				return (Set<NewsModel>) session.createQuery("Select n from NewsModel n join n.authorModel a where a.name = ?1")
+				EntityManager entityManager = entityManagerFactory.createEntityManager();
+				Set<NewsModel> newsModelSet = (Set<NewsModel>) entityManager.createQuery("Select n from NewsModel n join n.authorModel a where a.name = ?1")
 								.setParameter(1, "%" + authorName + "%")
 								.getResultStream()
 								.collect(Collectors.toSet());
+				entityManager.close();
+				return newsModelSet;
 		}
 
 		@Override
 		public  Set<NewsModel> readByTitle(String title) {
-				return (Set<NewsModel>) session.createQuery("Select n from NewsModel n where n.title like ?1")
+				EntityManager entityManager = entityManagerFactory.createEntityManager();
+				Set<NewsModel> newsModelSet = (Set<NewsModel>) entityManager.createQuery("Select n from NewsModel n where n.title like ?1")
 								.setParameter(1, "%" + title + "%")
 								.getResultStream()
 								.collect(Collectors.toSet());
+				entityManager.close();
+				return newsModelSet;
 		}
 
 		@Override
 		public Set<NewsModel> readByContent(String content) {
-				return (Set<NewsModel>) session.createQuery("Select n from NewsModel n where n.content like ?1")
+				EntityManager entityManager = entityManagerFactory.createEntityManager();
+				Set<NewsModel> newsModelSet = (Set<NewsModel>) entityManager.createQuery("Select n from NewsModel n where n.conten like ?1")
 								.setParameter(1, "%" + content + "%")
 								.getResultStream()
 								.collect(Collectors.toSet());
+				entityManager.close();
+				return newsModelSet;
 		}
 }

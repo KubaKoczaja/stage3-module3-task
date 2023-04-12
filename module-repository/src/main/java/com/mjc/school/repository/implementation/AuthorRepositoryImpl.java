@@ -1,79 +1,103 @@
 package com.mjc.school.repository.implementation;
 
-import com.mjc.school.repository.AuthorModel;
 import com.mjc.school.repository.AuthorRepository;
+import com.mjc.school.repository.model.AuthorModel;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
+import javax.persistence.PersistenceUnit;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
 public class AuthorRepositoryImpl implements AuthorRepository {
-		private final Session session;
+@PersistenceUnit
+private final EntityManagerFactory entityManagerFactory;
 		@Override
 		public List<AuthorModel> readAll() {
-				Transaction transaction = session.getTransaction();
-				transaction.begin();
-				List<AuthorModel> authorsList = new ArrayList<>();
-				try {
-						authorsList = session.createQuery("select a from AuthorModel a").getResultList();
-				} catch (Exception e) {
-						transaction.rollback();
-				}
-				transaction.commit();
+				EntityManager entityManager = entityManagerFactory.createEntityManager();
+				Session session = entityManager.unwrap(Session.class);
+				List<AuthorModel> authorsList = session.createQuery("select a from AuthorModel a").getResultList();
+				session.close();
+				entityManager.close();
 				return authorsList;
 		}
-		@Override
-		public Optional<AuthorModel> readById(Long id) {
-				return session.createQuery("select a from AuthorModel a where a.id = ?1")
-								.setParameter(1, id)
-								.uniqueResultOptional();
-		}
-		@Override
-		public AuthorModel create(AuthorModel entity) {
-				Transaction transaction = session.getTransaction();
-				transaction.begin();
-				try {
-						session.save(entity);
-				} catch (RuntimeException e) {
-						transaction.rollback();
-				}
+@Override
+public Optional<AuthorModel> readById(Long id) {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		Session session = entityManager.unwrap(Session.class);
+		Optional<AuthorModel> authorById =
+						session.createQuery("select a from AuthorModel a where a.id = ?1")
+										.setParameter(1, id)
+										.getResultStream()
+										.findFirst();
+		session.close();
+		entityManager.close();
+		return authorById;
+}
+@Override
+public AuthorModel create(AuthorModel entity) {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		EntityTransaction transaction = entityManager.getTransaction();
+		transaction.begin();
+		try {
+				entityManager.persist(entity);
 				transaction.commit();
-				return entity;
+		} catch (RuntimeException e) {
+				transaction.rollback();
 		}
-		@Override
-		public AuthorModel update(AuthorModel entity) {
-				session.update(entity);
-				return entity;
+		entityManager.close();
+		return entity;
+}
+@Override
+public AuthorModel update(AuthorModel entity) {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		EntityTransaction transaction = entityManager.getTransaction();
+		transaction.begin();
+		try {
+				entityManager.merge(entity);
+				transaction.commit();
+		} catch (RuntimeException e) {
+				transaction.rollback();
 		}
-		@Override
-		public boolean deleteById(Long id) {
-				Transaction transaction = session.getTransaction();
-				transaction.begin();
-				try{
-				session.createQuery("delete from AuthorModel where id = ?1")
-        				.setParameter( 1, id )
+		entityManager.close();
+		return entity;
+}
+@Override
+public boolean deleteById(Long id) {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		EntityTransaction transaction = entityManager.getTransaction();
+		transaction.begin();
+		try{
+				entityManager.createQuery("delete from AuthorModel where id = ?1")
+								.setParameter( 1, id )
 								.executeUpdate();
-				} catch (RuntimeException e) {
-						transaction.rollback();
-						return Boolean.FALSE;
-				}
 				transaction.commit();
-				return Boolean.TRUE;
+		} catch (RuntimeException e) {
+				transaction.rollback();
+				entityManager.close();
+				return Boolean.FALSE;
 		}
+		entityManager.close();
+		return Boolean.TRUE;
+}
 		@Override
 		public boolean existById(Long id) {
 				return  readById(id).isPresent();
 		}
 		@Override
 		public AuthorModel readByNewsId(Long newsId) {
-    return (AuthorModel) session.createQuery("Select a FROM AuthorModel a JOIN a.newsModelList n WHERE n.id = ?1")
-            .setParameter(1, newsId)
-            .uniqueResult();
+				EntityManager entityManager = entityManagerFactory.createEntityManager();
+				AuthorModel authorModel = (AuthorModel) entityManager
+								.createQuery("Select a FROM AuthorModel a JOIN a.newsModelList n WHERE n.id = ?1")
+								.setParameter(1, newsId)
+								.getSingleResult();
+				entityManager.close();
+				return authorModel;
 		}
 }

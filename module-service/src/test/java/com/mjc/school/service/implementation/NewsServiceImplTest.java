@@ -1,13 +1,15 @@
 package com.mjc.school.service.implementation;
 
-import com.mjc.school.repository.AuthorModel;
+import com.mjc.school.repository.model.AuthorModel;
 import com.mjc.school.repository.AuthorRepository;
-import com.mjc.school.repository.NewsModel;
+import com.mjc.school.repository.model.NewsModel;
 import com.mjc.school.repository.implementation.NewsRepositoryImpl;
 import com.mjc.school.service.dto.AuthorModelDto;
 import com.mjc.school.service.dto.NewsModelDto;
 import com.mjc.school.service.dto.NewsRequestDto;
 import com.mjc.school.service.exception.NoSuchEntityException;
+import com.mjc.school.service.mapper.AuthorMapper;
+import com.mjc.school.service.mapper.AuthorMapperImpl;
 import com.mjc.school.service.mapper.NewsMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,7 +36,9 @@ class NewsServiceImplTest {
 		@Mock
 		private NewsRepositoryImpl newsModelRepository;
 		@Mock
-		private AuthorRepository authorRepository;
+		private AuthorServiceImpl authorService;
+		@Mock
+		private AuthorMapper authorMapper;
 		@Mock
 		private NewsMapper newsMapper;
 
@@ -66,7 +70,8 @@ class NewsServiceImplTest {
 				NewsRequestDto newsModelToCreate = new NewsRequestDto(1L, "testTitle", "testContent", LocalDateTime.now(), LocalDateTime.now(), 1L, "", "test", "test");
 				NewsModel newsToSave = new NewsModel(1L, "testTitle", "testContent", LocalDateTime.now(), LocalDateTime.now(), new AuthorModel(), new HashSet<>());
 				lenient().when(newsMapper.newsRequestToNews(any(NewsRequestDto.class))).thenReturn(newsToSave);
-				when(authorRepository.readById(anyLong())).thenReturn(Optional.of(new AuthorModel()));
+				when(authorService.readById(anyLong())).thenReturn(new AuthorModelDto());
+				when(authorMapper.authorDtoToAuthor(any(AuthorModelDto.class))).thenReturn(new AuthorModel());
 				lenient().when(newsModelRepository.create(any(NewsModel.class))).thenReturn(new NewsModel());
 				NewsModelDto savedNewsDto = new NewsModelDto(1L, "testTitle", "testContent", LocalDateTime.now(), LocalDateTime.now(), new AuthorModelDto());
 				lenient().when(newsMapper.newsToNewsDTO(any(NewsModel.class))).thenReturn(savedNewsDto);
@@ -79,7 +84,8 @@ class NewsServiceImplTest {
 				NewsModelDto updatedNewsDto = new NewsModelDto(1L, "testTitle", "testContent", LocalDateTime.now(), LocalDateTime.now(), new AuthorModelDto());
 				NewsModel newsToSave = new NewsModel(1L, "testTitle", "testContent", LocalDateTime.now(), LocalDateTime.now(), new AuthorModel(), new HashSet<>());
 				AuthorModel authorModel = new AuthorModel(1L, "TestAuthor", LocalDateTime.now(), LocalDateTime.now(), new ArrayList<>());
-				when(authorRepository.readById(anyLong())).thenReturn(Optional.of(authorModel));
+				when(authorService.readById(anyLong())).thenReturn(new AuthorModelDto());
+				when(authorMapper.authorDtoToAuthor(any(AuthorModelDto.class))).thenReturn(new AuthorModel());
 				lenient().when(newsModelRepository.readById(anyLong())).thenReturn(Optional.of(newsToSave));
 				lenient().when(newsModelRepository.update(any(NewsModel.class))).thenReturn(new NewsModel());
 				lenient().when(newsMapper.newsToNewsDTO(any(NewsModel.class))).thenReturn(updatedNewsDto);

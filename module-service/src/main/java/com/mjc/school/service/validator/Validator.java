@@ -1,6 +1,9 @@
 package com.mjc.school.service.validator;
 
 import com.mjc.school.repository.*;
+import com.mjc.school.repository.model.AuthorModel;
+import com.mjc.school.repository.model.NewsModel;
+import com.mjc.school.repository.model.TagModel;
 import com.mjc.school.service.dto.*;
 import com.mjc.school.service.exception.InvalidContentException;
 import com.mjc.school.service.exception.NoSuchEntityException;

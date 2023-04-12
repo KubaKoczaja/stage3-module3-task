@@ -1,70 +1,94 @@
 package com.mjc.school.repository.implementation;
 
-import com.mjc.school.repository.TagModel;
 import com.mjc.school.repository.TagRepository;
+import com.mjc.school.repository.model.TagModel;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
+import javax.persistence.PersistenceUnit;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
 public class TagRepositoryImpl implements TagRepository {
-		private final Session session;
+		@PersistenceUnit
+		private final EntityManagerFactory entityManagerFactory;
 		@Override
 		public List<TagModel> readAll() {
-				return session.createQuery("select t from TagModel t").getResultList();
+				EntityManager entityManager = entityManagerFactory.createEntityManager();
+				Session session = entityManager.unwrap(Session.class);
+				List<TagModel> tagModelList = session.createQuery("select t from TagModel t").getResultList();
+				session.close();
+						entityManager.close();
+				return tagModelList;
 		}
 
 		@Override
 		public Optional<TagModel> readById(Long id) {
-				return session.createQuery("select t from TagModel t where t.id = ?1")
-								.setParameter(1, id)
-								.uniqueResultOptional();
+				EntityManager entityManager = entityManagerFactory.createEntityManager();
+				Session session = entityManager.unwrap(Session.class);
+
+				Optional<TagModel> tag =
+								session.createQuery("select t from TagModel t where t.id = ?1")
+												.setParameter(1, id)
+												.getResultStream()
+												.findFirst();
+				session.close();
+				entityManager.close();
+				return tag;
 		}
 
 		@Override
 		public TagModel create(TagModel entity) {
-				Transaction transaction = session.getTransaction();
+				EntityManager entityManager = entityManagerFactory.createEntityManager();
+				EntityTransaction transaction = entityManager.getTransaction();
 				transaction.begin();
 				try {
-						session.save(entity);
-				} catch (Exception e) {
+						entityManager.persist(entity);
+						transaction.commit();
+				} catch (RuntimeException e) {
 						transaction.rollback();
 				}
-				transaction.commit();
+				entityManager.close();
 				return entity;
 		}
 
 		@Override
 		public TagModel update(TagModel entity) {
-				Transaction transaction = session.getTransaction();
+				EntityManager entityManager = entityManagerFactory.createEntityManager();
+				EntityTransaction transaction = entityManager.getTransaction();
 				transaction.begin();
 				try {
-						session.update(entity);
-				} catch (Exception e) {
+						entityManager.merge(entity);
+						transaction.commit();
+				} catch (RuntimeException e) {
 						transaction.rollback();
 				}
-				transaction.commit();
+				entityManager.close();
 				return entity;
 		}
 
 		@Override
 		public boolean deleteById(Long id) {
-				Transaction transaction = session.getTransaction();
+				EntityManager entityManager = entityManagerFactory.createEntityManager();
+				EntityTransaction transaction = entityManager.getTransaction();
 				transaction.begin();
-				try {
-						session.createQuery("delete from TagModel where id = ?1")
-										.setParameter( 1, id)
+				try{
+						entityManager.createQuery("delete from TagModel where id = ?1")
+										.setParameter( 1, id )
 										.executeUpdate();
-				} catch (Exception e) {
+						transaction.commit();
+				} catch (RuntimeException e) {
 						transaction.rollback();
+						entityManager.close();
 						return Boolean.FALSE;
 				}
-				transaction.commit();
+				entityManager.close();
 				return Boolean.TRUE;
 		}
 
@@ -75,9 +99,12 @@ public class TagRepositoryImpl implements TagRepository {
 
 		@Override
 		public List<TagModel> readByNewsId(Long newsId) {
-    return session
-        .createQuery("select t from TagModel t join FETCH t.newsModelSet n where n.id = ?1")
-        .setParameter(1, newsId)
-        .getResultList();
+				EntityManager entityManager = entityManagerFactory.createEntityManager();
+				List<TagModel> readByNewsIdList = entityManager
+								.createQuery("select t from TagModel t join FETCH t.newsModelSet n where n.id =?1")
+								.setParameter(1, newsId)
+								.getResultList();
+				entityManager.close();
+				return readByNewsIdList;
 		}
 }

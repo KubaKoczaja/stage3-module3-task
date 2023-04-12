@@ -20,6 +20,7 @@ public class View {
 		private final Scanner scanner = new Scanner(System.in);
 		private final ObjectMapper objectMapper = new ObjectMapper();
 		public int mainMenu() {
+				scanner.reset();
 				log.info("""
 						Enter the number of operation:
 						1 - Get all news.

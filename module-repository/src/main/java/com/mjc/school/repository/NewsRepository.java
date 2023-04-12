@@ -1,5 +1,7 @@
 package com.mjc.school.repository;
 
+import com.mjc.school.repository.model.NewsModel;
+
 import java.util.Set;
 
 public interface NewsRepository extends BaseRepository<NewsModel, Long> {

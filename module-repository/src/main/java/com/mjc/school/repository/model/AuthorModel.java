@@ -1,12 +1,11 @@
-package com.mjc.school.repository;
+package com.mjc.school.repository.model;
 
 import lombok.*;
-
-import org.hibernate.annotations.Cascade;
 import org.springframework.lang.NonNull;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
@@ -30,7 +29,6 @@ public class AuthorModel implements BaseEntity<Long>{
 		@NonNull
 		@Column(name = "LAST_UPDATE_DATE")
 		private LocalDateTime lastUpdateDate;
-		@OneToMany(mappedBy = "authorModel", fetch = FetchType.EAGER)
-		@Cascade({org.hibernate.annotations.CascadeType.SAVE_UPDATE})
-		private List<NewsModel> newsModelList;
+		@OneToMany(mappedBy = "authorModel")
+		private List<NewsModel> newsModelList = new ArrayList<>();
 }

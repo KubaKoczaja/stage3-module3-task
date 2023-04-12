@@ -1,6 +1,6 @@
 package com.mjc.school.service.implementation;
 
-import com.mjc.school.repository.AuthorModel;
+import com.mjc.school.repository.model.AuthorModel;
 import com.mjc.school.repository.AuthorRepository;
 import com.mjc.school.service.AuthorService;
 import com.mjc.school.service.dto.AuthorModelDto;

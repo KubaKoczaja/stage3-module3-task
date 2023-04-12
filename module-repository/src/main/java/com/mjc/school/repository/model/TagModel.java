@@ -1,7 +1,6 @@
-package com.mjc.school.repository;
+package com.mjc.school.repository.model;
 
 import lombok.*;
-import org.hibernate.annotations.Cascade;
 import org.springframework.lang.NonNull;
 
 import javax.persistence.*;
@@ -14,7 +13,7 @@ import java.util.Set;
 @Entity
 @Table(name = "TAG")
 @ToString(exclude = "newsModelSet")
-@EqualsAndHashCode(exclude = "id")
+@EqualsAndHashCode(exclude = {"id", "newsModelSet"})
 public class TagModel implements BaseEntity<Long>{
 		@Id
 		@GeneratedValue(strategy = GenerationType.AUTO)
@@ -23,7 +22,6 @@ public class TagModel implements BaseEntity<Long>{
 		@Column(name = "NAME")
 		@NonNull
 		private String name;
-		@ManyToMany(mappedBy = "tagModelSet")
-		@Cascade({org.hibernate.annotations.CascadeType.SAVE_UPDATE})
+		@ManyToMany(mappedBy = "tagModelSet", cascade={CascadeType.MERGE})
 		private Set<NewsModel> newsModelSet = new HashSet<>();
 }

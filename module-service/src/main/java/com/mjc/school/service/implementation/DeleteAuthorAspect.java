@@ -1,7 +1,7 @@
 package com.mjc.school.service.implementation;
 
 import com.mjc.school.repository.BaseRepository;
-import com.mjc.school.repository.NewsModel;
+import com.mjc.school.repository.model.NewsModel;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
