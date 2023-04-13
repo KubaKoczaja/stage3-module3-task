@@ -2,26 +2,25 @@ package com.mjc.school.repository.implementation;
 
 import com.mjc.school.repository.NewsRepository;
 import com.mjc.school.repository.model.NewsModel;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
-import javax.persistence.PersistenceUnit;
+import javax.persistence.*;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Repository
-@RequiredArgsConstructor
+
+@AllArgsConstructor
 public class NewsRepositoryImpl implements NewsRepository {
-		@PersistenceUnit
-		private final EntityManagerFactory entityManagerFactory;
+		@PersistenceContext
+		private EntityManager entityManager;
 		@Override
 		public List<NewsModel> readAll() {
-				EntityManager entityManager = entityManagerFactory.createEntityManager();
+//				EntityManager entityManager = entityManagerFactory.createEntityManager();
 				List<NewsModel>	newsModelList = entityManager.createQuery("select n from NewsModel n", NewsModel.class).getResultList();
 				entityManager.close();
 				return newsModelList;
@@ -29,7 +28,7 @@ public class NewsRepositoryImpl implements NewsRepository {
 
 		@Override
 		public Optional<NewsModel> readById(Long id) {
-				EntityManager entityManager = entityManagerFactory.createEntityManager();
+//				EntityManager entityManager = entityManagerFactory.createEntityManager();
 				Optional<NewsModel> newsReadById =
 								entityManager.createQuery("select n from NewsModel n where n.id = ?1", NewsModel.class)
 												.setParameter(1, id)
@@ -41,7 +40,7 @@ public class NewsRepositoryImpl implements NewsRepository {
 
 		@Override
 		public NewsModel create(NewsModel entity) {
-				EntityManager entityManager = entityManagerFactory.createEntityManager();
+//				EntityManager entityManager = entityManagerFactory.createEntityManager();
 				EntityTransaction transaction = entityManager.getTransaction();
 				transaction.begin();
 				try {
@@ -57,7 +56,7 @@ public class NewsRepositoryImpl implements NewsRepository {
 
 		@Override
 		public NewsModel update(NewsModel entity) {
-				EntityManager entityManager = entityManagerFactory.createEntityManager();
+//				EntityManager entityManager = entityManagerFactory.createEntityManager();
 				EntityTransaction transaction = entityManager.getTransaction();
 				transaction.begin();
 				try {
@@ -72,7 +71,7 @@ public class NewsRepositoryImpl implements NewsRepository {
 
 		@Override
 		public boolean deleteById(Long id) {
-				EntityManager entityManager = entityManagerFactory.createEntityManager();
+//				EntityManager entityManager = entityManagerFactory.createEntityManager();
 				EntityTransaction transaction = entityManager.getTransaction();
 				transaction.begin();
 				try{
@@ -94,7 +93,7 @@ public class NewsRepositoryImpl implements NewsRepository {
 
 		@Override
 		public Set<NewsModel> readByTagName(String tagName) {
-				EntityManager entityManager = entityManagerFactory.createEntityManager();
+//				EntityManager entityManager = entityManagerFactory.createEntityManager();
 				Set<NewsModel> newsModelSet = entityManager.createQuery("Select n from NewsModel n join n.tagModelSet t where t.name like ?1", NewsModel.class)
 								.setParameter(1, "%" + tagName + "%")
 								.getResultStream()
@@ -105,7 +104,7 @@ public class NewsRepositoryImpl implements NewsRepository {
 
 		@Override
 		public Set<NewsModel> readByTagId(Long tagId) {
-				EntityManager entityManager = entityManagerFactory.createEntityManager();
+//				EntityManager entityManager = entityManagerFactory.createEntityManager();
     Set<NewsModel> newsModelSet =
         entityManager
             .createQuery(
@@ -119,7 +118,7 @@ public class NewsRepositoryImpl implements NewsRepository {
 
 		@Override
 		public  Set<NewsModel> readByAuthorName(String authorName) {
-				EntityManager entityManager = entityManagerFactory.createEntityManager();
+//				EntityManager entityManager = entityManagerFactory.createEntityManager();
     Set<NewsModel> newsModelSet =
         entityManager
             .createQuery(
@@ -133,7 +132,7 @@ public class NewsRepositoryImpl implements NewsRepository {
 
 		@Override
 		public  Set<NewsModel> readByTitle(String title) {
-				EntityManager entityManager = entityManagerFactory.createEntityManager();
+//				EntityManager entityManager = entityManagerFactory.createEntityManager();
     Set<NewsModel> newsModelSet =
         entityManager
             .createQuery("Select n from NewsModel n where n.title like ?1", NewsModel.class)
@@ -146,7 +145,7 @@ public class NewsRepositoryImpl implements NewsRepository {
 
 		@Override
 		public Set<NewsModel> readByContent(String content) {
-				EntityManager entityManager = entityManagerFactory.createEntityManager();
+//				EntityManager entityManager = entityManagerFactory.createEntityManager();
     Set<NewsModel> newsModelSet =
         entityManager
             .createQuery("Select n from NewsModel n where n.content like ?1", NewsModel.class)
