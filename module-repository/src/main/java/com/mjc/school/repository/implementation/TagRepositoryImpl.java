@@ -3,10 +3,12 @@ package com.mjc.school.repository.implementation;
 import com.mjc.school.repository.TagRepository;
 import com.mjc.school.repository.model.TagModel;
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.*;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
+import javax.persistence.PersistenceUnit;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,11 +16,11 @@ import java.util.Optional;
 
 @AllArgsConstructor
 public class TagRepositoryImpl implements TagRepository {
-		@PersistenceContext
-		private EntityManager entityManager;
+		@PersistenceUnit
+		private EntityManagerFactory entityManagerFactory;
 		@Override
 		public List<TagModel> readAll() {
-//				EntityManager entityManager = entityManagerFactory.createEntityManager();
+				EntityManager entityManager = entityManagerFactory.createEntityManager();
 				List<TagModel> tagModelList = entityManager.createQuery("select t from TagModel t", TagModel.class).getResultList();
 						entityManager.close();
 				return tagModelList;
@@ -26,7 +28,7 @@ public class TagRepositoryImpl implements TagRepository {
 
 		@Override
 		public Optional<TagModel> readById(Long id) {
-//				EntityManager entityManager = entityManagerFactory.createEntityManager();
+				EntityManager entityManager = entityManagerFactory.createEntityManager();
 				Optional<TagModel> tag =
 								entityManager.createQuery("select t from TagModel t where t.id = ?1", TagModel.class)
 												.setParameter(1, id)
@@ -38,7 +40,7 @@ public class TagRepositoryImpl implements TagRepository {
 
 		@Override
 		public TagModel create(TagModel entity) {
-//				EntityManager entityManager = entityManagerFactory.createEntityManager();
+				EntityManager entityManager = entityManagerFactory.createEntityManager();
 				EntityTransaction transaction = entityManager.getTransaction();
 				transaction.begin();
 				try {
@@ -53,7 +55,7 @@ public class TagRepositoryImpl implements TagRepository {
 
 		@Override
 		public TagModel update(TagModel entity) {
-//				EntityManager entityManager = entityManagerFactory.createEntityManager();
+				EntityManager entityManager = entityManagerFactory.createEntityManager();
 				EntityTransaction transaction = entityManager.getTransaction();
 				transaction.begin();
 				try {
@@ -68,7 +70,7 @@ public class TagRepositoryImpl implements TagRepository {
 
 		@Override
 		public boolean deleteById(Long id) {
-//				EntityManager entityManager = entityManagerFactory.createEntityManager();
+				EntityManager entityManager = entityManagerFactory.createEntityManager();
 				EntityTransaction transaction = entityManager.getTransaction();
 				transaction.begin();
 				try{
@@ -92,7 +94,7 @@ public class TagRepositoryImpl implements TagRepository {
 
 		@Override
 		public List<TagModel> readByNewsId(Long newsId) {
-//				EntityManager entityManager = entityManagerFactory.createEntityManager();
+				EntityManager entityManager = entityManagerFactory.createEntityManager();
 				List<TagModel> readByNewsIdList = entityManager
 								.createQuery("select t from TagModel t join FETCH t.newsModelSet n where n.id =?1", TagModel.class)
 								.setParameter(1, newsId)
