@@ -1,4 +1,4 @@
-package com.mjc.school.repository;
+package com.mjc.school.main;
 
 import lombok.NoArgsConstructor;
 import org.springframework.context.annotation.Bean;
